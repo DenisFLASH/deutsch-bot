@@ -31,38 +31,35 @@ logging.basicConfig(
 
 
 DF = pd.read_csv("./words.csv", sep=";")
-MENU, ANSWERING = 0, 1  # states
+LESSON = 0  # states
 
 
-def menu(update, context):
+def start(update, context):
     """User choosing to continue or not. If yes, a question is asked."""
 
-    # question
-    q = dict(DF.sample(1).iloc[0])
-    context.user_data["q"] = q  # {"de": ..., "ru": ...}
-    logging.info(f"context.user_data: {context.user_data}")
-    update.message.reply_text(f"{q['ru']}:")
 
-    return ANSWERING
+    _set_question(update, context)
+
+    return LESSON
 
 
-def answering(update, context):
+def lesson(update, context):
     """Compare user's answer to the correct translation, stored in context"""
 
+    # 1) check the answer to the current question
+    user = update.message.from_user
+    answer = update.message.text
+    logging.info(f"{user.first_name}'s answer: {answer}")
     q = context.user_data["q"]
     translation = q["de"]
-
-    answer = update.message.text
-    user = update.message.from_user
-    logging.info(f"{user.first_name}'s answer: {answer}")
 
     if answer.lower() == translation.lower():
         update.message.reply_text(f"Ja! Gut gemacht!!!")
 
-    update.message.reply_text(f"{q['ru']} = {q['de']}")
+    # 2) set a new question
+    _set_question(update, context)
 
-    update.message.reply_text(f"Noch einmal: /ja,  stop: /stop ?")
-    return MENU
+    return LESSON
 
 
 def stop(update, context):
@@ -70,6 +67,17 @@ def stop(update, context):
     context.user_data.clear()
     update.message.reply_text("Tschüss!")
     return ConversationHandler.END
+
+
+def _set_question(update, context) -> None:
+    """Pick a question, show to the user and set inside the context."""
+
+    q = dict(DF.sample(1).iloc[0])
+    context.user_data["q"] = q  # {"de": ..., "ru": ...}
+    logging.info(f"context.user_data: {context.user_data}")
+
+    update.message.reply_text("---------------------------------------")
+    update.message.reply_text(f"{q['ru']}:")
 
 
 def main():
@@ -83,11 +91,11 @@ def main():
     dp = updater.dispatcher
 
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler("start", menu)],
+        entry_points=[CommandHandler("start", start)],
         states={
-            MENU: [CommandHandler("ja", menu)],
-            ANSWERING: [MessageHandler(Filters.text & ~Filters.command,
-                                       answering)]
+            LESSON: [
+                MessageHandler(Filters.text & ~Filters.command, lesson)
+            ]
         },
         fallbacks=[CommandHandler("stop", stop)]
     )
