@@ -29,6 +29,7 @@ logging.basicConfig(
     format="%(asctime)s - %(filename)s - %(levelname)s - %(message)s",
     level=logging.INFO)
 
+
 DF = pd.read_csv("./words.csv", sep=";")
 MENU, ANSWERING = 0, 1  # states
 
@@ -52,7 +53,8 @@ def answering(update, context):
     translation = q["de"]
 
     answer = update.message.text
-    logging.info(f"answer: {answer}")
+    user = update.message.from_user
+    logging.info(f"{user.first_name}'s answer: {answer}")
 
     if answer.lower() == translation.lower():
         update.message.reply_text(f"Ja! Gut gemacht!!!")
