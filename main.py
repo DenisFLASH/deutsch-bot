@@ -25,7 +25,8 @@ from telegram.ext import (CommandHandler, ConversationHandler, Filters,
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    filename="./bot.log",
+    format="%(asctime)s - %(filename)s - %(levelname)s - %(message)s",
     level=logging.INFO)
 
 DF = pd.read_csv("./words.csv", sep=";")
