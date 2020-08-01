@@ -37,6 +37,8 @@ LESSON = 0  # states
 def start(update, context):
     """User choosing to continue or not. If yes, a question is asked."""
 
+    user = update.message.from_user
+    update.message.reply_text(f"👋 Hallo, {user.first_name}! Lass uns gehen!")
 
     _set_question(update, context)
 
@@ -54,7 +56,9 @@ def lesson(update, context):
     translation = q["de"]
 
     if answer.lower() == translation.lower():
-        update.message.reply_text(f"Ja! Gut gemacht!!!")
+        update.message.reply_text(f"Ja! Gut gemacht!!! 👍")
+    else:
+        update.message.reply_text(f"😔 nein.. {q['ru']} = {q['de']}")
 
     # 2) set a new question
     _set_question(update, context)
@@ -64,8 +68,10 @@ def lesson(update, context):
 
 def stop(update, context):
     """Stop learning session."""
+    user = update.message.from_user
+    update.message.reply_text(f"👋 Tschüss, {user.first_name}! Bis bald!")
+
     context.user_data.clear()
-    update.message.reply_text("Tschüss!")
     return ConversationHandler.END
 
 
