@@ -56,9 +56,11 @@ def lesson(update, context):
     translation = q["de"]
 
     if answer.lower() == translation.lower():
-        update.message.reply_text(f"Ja! Gut gemacht!!! 👍")
+        update.message.reply_text("Ja! Gut gemacht!!! 👍")
     else:
-        update.message.reply_text(f"😔 nein.. {q['ru']} = {q['de']}")
+        update.message.reply_text("nein...")
+
+    update.message.reply_text(f"{q['ru']} = {q['de']}")
 
     # 2) set a new question
     _set_question(update, context)
