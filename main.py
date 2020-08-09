@@ -19,6 +19,7 @@ import logging
 import os
 
 import pandas as pd
+from telegram import ReplyKeyboardMarkup
 from telegram.ext import (CommandHandler, ConversationHandler, Filters,
                           MessageHandler, Updater)
 
@@ -30,15 +31,35 @@ logging.basicConfig(
     level=logging.INFO)
 
 
-DF = pd.read_csv("./words.csv", sep=";")
-LESSON = 0  # states
+HELLO, LESSON = 0, 1  # states
+DICTIONARIES = {
+    "Verben": "./data/verbs.csv",
+    "Adjektiven": "./data/adjectives.csv"
+}
 
 
-def start(update, context):
-    """User choosing to continue or not. If yes, a question is asked."""
+def select_dictionary(update, context):
+    """Send greeting and ask which dictionary to learn."""
 
     user = update.message.from_user
-    update.message.reply_text(f"👋 Hallo, {user.first_name}! Lass uns gehen!")
+    update.message.reply_text(f"👋 Hallo, {user.first_name}!")
+
+    keyboard = [DICTIONARIES.keys()]
+    update.message.reply_text(
+        "Welche Wörter wollen Sie lernen?",
+        reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True))
+
+    return HELLO
+
+
+def hello(update, context):
+    """Open the corresponding dictionary, ask the 1st question."""
+
+    key = update.message.text
+    dictionary = pd.read_csv(DICTIONARIES[key], sep=";")
+    context.user_data["dictionary"] = dictionary
+
+    update.message.reply_text("Lass uns gehen!")
 
     _set_question(update, context)
 
@@ -79,8 +100,8 @@ def stop(update, context):
 
 def _set_question(update, context) -> None:
     """Pick a question, show to the user and set inside the context."""
-
-    q = dict(DF.sample(1).iloc[0])
+    dictionary = context.user_data["dictionary"]
+    q = dict(dictionary.sample(1).iloc[0])
     context.user_data["q"] = q  # {"de": ..., "ru": ...}
     logging.info(f"context.user_data: {context.user_data}")
 
@@ -99,8 +120,11 @@ def main():
     dp = updater.dispatcher
 
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler("start", start)],
+        entry_points=[CommandHandler("start", select_dictionary)],
         states={
+            HELLO: [
+                MessageHandler(Filters.text & ~Filters.command, hello)
+            ],
             LESSON: [
                 MessageHandler(Filters.text & ~Filters.command, lesson)
             ]
