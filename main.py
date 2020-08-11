@@ -34,7 +34,8 @@ logging.basicConfig(
 HELLO, LESSON = 0, 1  # states
 DICTIONARIES = {
     "Verben": "./data/verbs.csv",
-    "Adjektiven": "./data/adjectives.csv"
+    "Adjektiven": "./data/adjectives.csv",
+    "andere": "./data/andere.csv"
 }
 
 
@@ -57,6 +58,8 @@ def hello(update, context):
 
     key = update.message.text
     dictionary = pd.read_csv(DICTIONARIES[key], sep=";")
+    update.message.reply_text(str(dictionary))
+
     context.user_data["dictionary"] = dictionary
 
     update.message.reply_text("Lass uns gehen!")
