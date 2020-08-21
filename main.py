@@ -116,7 +116,7 @@ def main():
     """Start the bot."""
 
     # Create the Updater and pass it your bot's token.
-    token = os.environ.get("DEUTSCH2020BOT_TOKEN")
+    token = os.environ.get("API_TOKEN")
     updater = Updater(token, use_context=True)
 
     # Get the dispatcher to register handlers
