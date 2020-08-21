@@ -75,9 +75,10 @@ def lesson(update, context):
     # 1) check the answer to the current question
     user = update.message.from_user
     answer = update.message.text
-    logging.info(f"{user.first_name}'s answer: {answer}")
     q = context.user_data["q"]
     translation = q["de"]
+
+    logging.info(f"{q} - {user.first_name}'s answer: {answer}")
 
     if answer.lower() == translation.lower():
         update.message.reply_text("Ja! Gut gemacht!!! 👍")
@@ -106,7 +107,6 @@ def _set_question(update, context) -> None:
     dictionary = context.user_data["dictionary"]
     q = dict(dictionary.sample(1).iloc[0])
     context.user_data["q"] = q  # {"de": ..., "ru": ...}
-    logging.info(f"context.user_data: {context.user_data}")
 
     update.message.reply_text("---------------------------------------")
     update.message.reply_text(f"{q['ru']}:")
