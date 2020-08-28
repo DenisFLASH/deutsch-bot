@@ -1,22 +1,10 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# This program is dedicated to the public domain under the CC0 license.
-
 """
-Simple Bot to reply to Telegram messages.
-
-First, a few handler functions are defined. Then, those functions are passed to
-the Dispatcher and registered at their respective places.
-Then, the bot is started and runs until we press Ctrl-C on the command line.
-
-Usage:
-Basic Echobot example, repeats messages.
-Press Ctrl-C on the command line or send a signal to the process to stop the
-bot.
+Telegram bot for learning German words.
 """
 
 import logging
 import os
+import re
 
 import pandas as pd
 from telegram import ReplyKeyboardMarkup
@@ -33,6 +21,7 @@ logging.basicConfig(
 
 HELLO, LESSON = 0, 1  # states
 DICTIONARIES = {
+    "Starken Verben": "./data/starken_Verben.csv",
     "Verben": "./data/verbs.csv",
     "Adjektiven": "./data/adjectives.csv",
     "andere": "./data/andere.csv"
@@ -80,7 +69,7 @@ def lesson(update, context):
 
     logging.info(f"{q} - {user.first_name}'s answer: {answer}")
 
-    if answer.lower() == translation.lower():
+    if compare(answer, translation):
         update.message.reply_text("Ja! Gut gemacht!!! 👍")
     else:
         update.message.reply_text("nein...")
@@ -110,6 +99,19 @@ def _set_question(update, context) -> None:
 
     update.message.reply_text("---------------------------------------")
     update.message.reply_text(f"{q['ru']}:")
+
+
+def compare(s1, s2) -> bool:
+    """
+    Compare two strings ignoring the case.
+    Also split by non-word character and compare splitted parts:
+    used for irregular verbs, where 3 forms may be separated by e.g. "-"
+    in the dictionary and by " " in the answer.
+    """
+    s1, s2 = s1.lower(), s2.lower()
+    parts1 = re.split("\W", s1)
+    parts2 = re.split("\W", s2)
+    return parts1 == parts2
 
 
 def main():
