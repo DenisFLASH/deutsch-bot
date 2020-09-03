@@ -36,7 +36,7 @@ def select_dictionary(update, context):
 
     keyboard = [DICTIONARIES.keys()]
     update.message.reply_text(
-        "Welche Wörter wollen Sie lernen?",
+        "Welche Wörter wollen Sie lernen? (wählen Sie mit der Tastatur)",
         reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True))
 
     return HELLO
@@ -51,7 +51,15 @@ def hello(update, context):
 
     context.user_data["dictionary"] = dictionary
 
-    update.message.reply_text("Lass uns gehen!")
+    instruction = "Schreiben Sie die Übersetzung"
+    if key == "Starken Verben":
+        instruction += "\n(3 Formen, z.B. gehen ging gegangen)"
+
+    lines = [
+        "Lass uns gehen!",
+        instruction
+    ]
+    update.message.reply_text("\n".join(lines))  # TODO extract as method
 
     _set_question(update, context)
 
