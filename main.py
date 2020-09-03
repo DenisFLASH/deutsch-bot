@@ -66,15 +66,18 @@ def lesson(update, context):
     answer = update.message.text
     q = context.user_data["q"]
     translation = q["de"]
+    lines = []
 
     logging.info(f"{q} - {user.first_name}'s answer: {answer}")
 
     if compare(answer, translation):
-        update.message.reply_text("Ja! Gut gemacht!!! 👍")
+        lines.append("Ja! Gut gemacht!!! 👍")
     else:
-        update.message.reply_text("nein...")
+        lines.append("..NEIN..")
 
-    update.message.reply_text(f"{q['ru']} = {q['de']}")
+    lines.append(f"{q['ru']} = {q['de']}")
+    text = "\n".join(lines)
+    update.message.reply_text(text)
 
     # 2) set a new question
     _set_question(update, context)
@@ -97,8 +100,12 @@ def _set_question(update, context) -> None:
     q = dict(dictionary.sample(1).iloc[0])
     context.user_data["q"] = q  # {"de": ..., "ru": ...}
 
-    update.message.reply_text("---------------------------------------")
-    update.message.reply_text(f"{q['ru']}:")
+    lines = [
+        "---------------------------------------",
+        f"{q['ru']}:"
+    ]
+    text = "\n".join(lines)
+    update.message.reply_text(text)
 
 
 def compare(s1, s2) -> bool:
