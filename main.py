@@ -45,6 +45,9 @@ def select_dictionary(update, context):
 def hello(update, context):
     """Open the corresponding dictionary, ask the 1st question."""
 
+    user = update.message.from_user
+    logging.info(f"{user.id} - {user.first_name}")
+
     key = update.message.text
     dictionary = pd.read_csv(DICTIONARIES[key], sep=";")
     update.message.reply_text(str(dictionary))
@@ -76,7 +79,7 @@ def lesson(update, context):
     translation = q["de"]
     lines = []
 
-    logging.info(f"{q} - {user.first_name}'s answer: {answer}")
+    logging.info(f"{user.id} - {q} - {user.first_name}'s answer: {answer}")
 
     if compare(answer, translation):
         lines.append("Ja! Gut gemacht!!! 👍")
